@@ -11,38 +11,57 @@ namespace Zadanie3
     {
         public double weight;
         public double previousWeight;
-        public double output;
+        public List<double> output;
         public List<Neuron> inputs;
 
         public double neuronError;
         private double neighbourErrorSum;
         protected IActivation activation;
-        protected double prevWeightDelta;
+        public double prevWeightDelta;
 
         public Neuron(IActivation activation)
         {
             this.activation = activation;
             inputs = new List<Neuron>();
+            output = new List<double>();
+            weight = Helper.random.NextDouble(-1, 1);
         }
 
         public virtual void ComputeOutput() { }
 
-        public virtual void ComputeNeuronError(double expectedOutput)
-        {
-            double sum = expectedOutput * expectedOutput - 2 * expectedOutput * output +
-                         output * output;
-            neuronError = sum / 2;
-        }
-        public virtual void UpdateWeights(double learningRate) { }
-        public virtual double GetInputSum()
+        public virtual void ComputeNeuronError(double[] expectedOutput)
         {
             double sum = 0;
 
-            foreach (var neuron in inputs)
+            for (int i = 0; i < expectedOutput.Length; i++)
             {
-                sum += neuron.output * neuron.weight;
+                sum += expectedOutput[i] * expectedOutput[i] - 2 * expectedOutput[i] * output[i] +
+                       output[i] * output[i];
             }
-            return sum;
+            
+            neuronError = sum / (2 * expectedOutput.Length);
+        }
+        public virtual void UpdateWeights(double learningRate) { }
+        public virtual double[] GetInputSum()
+        {
+            List<double> sums = new List<double>();
+
+            for (int k = 0; k < inputs[0].output.Count; k++)
+            {
+                sums.Add(0);
+            }
+
+            for (int i = 0; i < sums.Count; i++)
+            {
+                sums[i] = 0;
+
+                foreach (var neuron in inputs)
+                {
+                    sums[i] += neuron.output[i] * neuron.weight;
+                }
+            }
+            
+            return sums.ToArray();
         }
     }
 }

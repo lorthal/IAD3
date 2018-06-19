@@ -22,7 +22,7 @@ namespace Zadanie3
             InitNeurons();
         }
 
-        public void ComputeNeuronErrors(double expectedOutput)
+        public void ComputeNeuronErrors(double[] expectedOutput)
         {
             foreach (var neuron in neurons)
             {

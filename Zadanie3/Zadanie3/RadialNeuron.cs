@@ -10,6 +10,7 @@ namespace Zadanie3
     {
         public double centroid;
         public double sigma;
+
         public RadialNeuron(IActivation activation) : base(activation)
         {
 
@@ -17,15 +18,29 @@ namespace Zadanie3
 
         public override void ComputeOutput()
         {
-            output = activation.GetResult(Helper.SquaredEuclideanDistance(new [] {inputs[0].output} ,new [] {centroid}), sigma);
+            for (int i = 0; i < inputs[0].output.Count; i++)
+            {
+                double d = Helper.SquaredEuclideanDistance(new[] { inputs[0].output[i] }, new[] { centroid });
+                if (output.Count < inputs[0].output.Count)
+                {
+                    output.Add(activation.GetResult(d, sigma));                
+                }
+                else
+                {
+                    output[i] = activation.GetResult(d, sigma);
+                }
+            }
         }
 
-        public override void UpdateWeights(double learningRate)
-        {
-            previousWeight = weight;
-            double delta = learningRate * neuronError * output * prevWeightDelta;
-            prevWeightDelta = delta;
-            weight = previousWeight - delta;
-        }
+        //public override void UpdateWeights(double learningRate, Neuron nextNeuron)
+        //{
+        //    previousWeight = weight;
+        //    double delta = 0;
+
+        //        delta += learningRate * nextNeuron.neuronError * output.Average() + prevWeightDelta;
+        //    delta /= output.Count;
+        //    prevWeightDelta = delta;
+        //    weight = previousWeight - delta;
+        //}
     }
 }

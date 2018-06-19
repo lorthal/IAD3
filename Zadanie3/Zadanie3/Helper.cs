@@ -9,6 +9,8 @@ namespace Zadanie3
 {
     public static class Helper
     {
+        public static Random random = new Random();
+
         public static void ReadTrainingSet(string path, out double[] inputs, out double[] expectedOutputs)
         {
             List<double> inputsList = new List<double>();
@@ -63,7 +65,7 @@ namespace Zadanie3
 
             for (int i = 1; i < others.Length; i++)
             {
-                closest = SquaredEuclideanDistance(new[] {others[i]}, new[] {point}) <
+                closest = SquaredEuclideanDistance(new[] {others[i]}, new[] {point}) >
                           SquaredEuclideanDistance(new[] {closest}, new[] {point})
                     ? others[i]
                     : closest;

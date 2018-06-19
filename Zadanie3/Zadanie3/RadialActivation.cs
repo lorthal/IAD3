@@ -21,7 +21,7 @@ namespace Zadanie3
             double dSrq = p[0];
             double sigma = p[1];
 
-            return 1 / (Math.Sqrt(2 * Math.PI) * sigma) * Math.Exp(-(dSrq/(2 * sigma * sigma)));
+            return Math.Exp(-(dSrq / (2 * sigma * sigma))) / (Math.Sqrt(2 * Math.PI) * sigma);
         }
 
         public double GetDerivative(params double[] x)

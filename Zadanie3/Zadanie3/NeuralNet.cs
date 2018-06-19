@@ -10,27 +10,33 @@ namespace Zadanie3
     public class NeuralNet
     {
         private ILayer layer;
-        private Random random;
         private IdentityNeuron outputNeuron;
         private double[] inputs;
         private double learningRate;
+
+        private double totalError = 0;
+
+        public double TotalError
+        {
+            get => totalError;
+            set => totalError = value;
+        }
 
         public NeuralNet(int numNeuronsRadialLayer, double[] inputs, double learningRate = 0.6)
         {
             layer = new ILayer(numNeuronsRadialLayer, new RadialActivation());
             outputNeuron = new IdentityNeuron(new IdentityActivation());
-            random = new Random();
             this.inputs = inputs;
             this.learningRate = learningRate;
         }
 
-        public void Train(double input, double expectedOuput)
+        public void Train(double[] expectedOuput)
         {
-            InitNeurons(input);
+            InitNeurons(inputs);
             Predict();
             ComputeOutputError(expectedOuput);
 
-            Display(input, outputNeuron.output, expectedOuput, outputNeuron.neuronError);
+            //Display(outputNeuron.neuronError);
 
             BackPropagation(expectedOuput);
         }
@@ -44,56 +50,56 @@ namespace Zadanie3
             outputNeuron.ComputeOutput();
         }
 
-        public void InitNeurons(double input)
+        public void InitNeurons(double[] inputs)
         {
             foreach (var neuron1 in layer.neurons)
             {
                 var neuron = neuron1 as RadialNeuron;
-                neuron.inputs.Clear();
-                neuron.inputs.Add(new Neuron(null) { output = input });
+                if (neuron.inputs.Count == 0)
+                    neuron.inputs.Add(new Neuron(null) { output = inputs.ToList() });
 
-                int i = random.Next(0, inputs.Length);
-                neuron.centroid = inputs[i];
-                neuron.weight = random.NextDouble(-1, 1);
+                //int i = Helper.random.Next(0, inputs.Length);
+                neuron.centroid = Helper.random.NextDouble(inputs.Min(), inputs.Max());
 
-                if (!outputNeuron.inputs.Contains(neuron))
+                if (outputNeuron.inputs.Count < layer.neurons.Count)
                 {
                     outputNeuron.inputs.Add(neuron);
                 }
             }
 
-            foreach (var neuron1 in layer.neurons)
+            for (int i = 0; i < layer.neurons.Count; i++)
             {
-                var neuron = neuron1 as RadialNeuron;
+                var neuron = layer.neurons[i] as RadialNeuron;
+                //double[] list = inputs.ToList().FindAll(n => Math.Abs(n - neuron.centroid) > 0.00001).ToArray();
 
-                neuron.sigma = Helper.EuclideanDistance(new[] { neuron.centroid },
-                                   new[]
-                                   {
-                                       Helper.FindClosest(neuron.centroid,
-                                           layer.neurons.ToList().FindAll(n => n != neuron)
-                                               .Select(n => ((RadialNeuron) n).centroid).ToArray())
-                                   });
+                double sum = 0;
+
+                for (int j = 0; j < inputs.Length; j++)
+                {
+                    sum += Helper.EuclideanDistance(new[] { neuron.centroid }, new[] { inputs[j] });
+                }
+
+                neuron.sigma = sum;
             }
         }
 
-        private void ComputeOutputError(double expectedOutput)
+        private void ComputeOutputError(double[] expectedOutputs)
         {
-            outputNeuron.ComputeNeuronError(expectedOutput);
+            outputNeuron.ComputeNeuronError(expectedOutputs);
+
+            totalError = outputNeuron.neuronError;
         }
 
-        private void BackPropagation(double expectedOutput)
+        private void BackPropagation(double[] expectedOutput)
         {
             layer.ComputeNeuronErrors(expectedOutput);
 
-            foreach (var neuron in layer.neurons)
-            {
-                neuron.UpdateWeights(learningRate);
-            }
+            outputNeuron.UpdateWeights(learningRate);
         }
 
-        private void Display(double input, double output, double expected, double error)
+        private void Display(double error)
         {
-            Console.WriteLine("Input: {0}\nOutput: {1}\nExpectedOutput: {2}\nError: {3}", input, output, expected, error);
+            Console.WriteLine("Error {0}", error);
         }
     }
 }
