@@ -8,24 +8,17 @@ namespace Zadanie3
 {
     class Program
     {
-        private const string resPath = "D:\\Semestr 6\\IAD\\Zad3Res\\";
+        public const string resPath = "D:\\Semestr 6\\IAD\\Zad3Res\\approximation_train_1.txt";
 
         static void Main(string[] args)
         {
             int n = 11;
             int epochs = 2000;
-            double[] inputs, expectedOutputs;
 
-            Helper.ReadTrainingSet(resPath + "approximation_train_2.txt", out inputs, out expectedOutputs);
-            NeuralNet net = new NeuralNet(n, inputs);
+            NeuralNet net = new NeuralNet(resPath, epochs, 1, 10, 1, 0.003, true);
 
-            for (int epoch = 1; epoch <= epochs; epoch++)
-            {
-                Console.WriteLine("Epoch: {0}", epoch);
+            net.Learn();
 
-                net.Train(expectedOutputs);
-                Console.WriteLine("\nTotal Error: {0}\n", net.TotalError);
-            }
             Console.ReadKey();
         }
     }
